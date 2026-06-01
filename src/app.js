@@ -235,6 +235,10 @@ const bindEvents = () => {
     state.selected = prompt;
     state.variableValues = {};
     renderBuilder();
+
+    if (window.matchMedia("(max-width: 1120px)").matches) {
+      els.builderContent.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   });
 
   els.copyGenerated.addEventListener("click", () => {
