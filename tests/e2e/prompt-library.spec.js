@@ -68,17 +68,17 @@ test.describe('deployed prompt library', () => {
     await expect(page.getByLabel('정렬')).toHaveValue('function');
   });
 
-  test('variable builder generates and copies customized prompts', async ({ page, context }) => {
+  test('custom input builder generates and copies customized prompts', async ({ page, context }) => {
     await grantClipboard(page, context);
 
-    await page.locator('.result-card').first().getByRole('button', { name: '변수 입력' }).click();
+    await page.locator('.result-card').first().getByRole('button', { name: '내용 채우기' }).click();
     await expect(page.locator('#builderContent')).toBeVisible();
     await expect(page.locator('#selectedTitle')).toContainText('시장과 사용자 맥락 빠르게 조사하기');
 
-    await page.getByRole('textbox', { name: '변수 목표' }).fill('신규 고객 유입 전략 수립');
-    await page.getByRole('textbox', { name: '변수 대상' }).fill('동네 카페 사장님');
-    await page.getByRole('textbox', { name: '변수 지역 또는 플랫폼' }).fill('서울 성수동과 인스타그램');
-    await page.getByRole('textbox', { name: '변수 기간' }).fill('최근 3개월');
+    await page.getByRole('textbox', { name: '입력 항목 목표' }).fill('신규 고객 유입 전략 수립');
+    await page.getByRole('textbox', { name: '입력 항목 대상' }).fill('동네 카페 사장님');
+    await page.getByRole('textbox', { name: '입력 항목 지역 또는 플랫폼' }).fill('서울 성수동과 인스타그램');
+    await page.getByRole('textbox', { name: '입력 항목 기간' }).fill('최근 3개월');
 
     const generated = page.locator('#generatedPrompt');
     await expect(generated).toHaveValue(/신규 고객 유입 전략 수립/);
@@ -108,6 +108,6 @@ test.describe('deployed prompt library', () => {
     await expect(page.getByLabel('대상')).toBeVisible();
     await page.getByLabel('대상').selectOption({ label: '학생' });
     expect(await parseDisplayedCount(page)).toBe(175);
-    await expect(page.locator('.result-card').first().getByRole('button', { name: '변수 입력' })).toBeVisible();
+    await expect(page.locator('.result-card').first().getByRole('button', { name: '내용 채우기' })).toBeVisible();
   });
 });

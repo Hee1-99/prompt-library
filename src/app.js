@@ -100,7 +100,7 @@ const renderPrompts = () => {
       </div>
       <div class="button-row">
         <button class="primary-button" type="button" data-action="select" data-id="${prompt.id}">
-          변수 입력
+          내용 채우기
         </button>
         <button class="secondary-button" type="button" data-action="copy" data-id="${prompt.id}">
           복사
@@ -147,9 +147,9 @@ const renderBuilder = () => {
 
     const input = document.createElement("input");
     input.id = `var-${variable}`;
-    input.setAttribute("aria-label", `변수 ${variable}`);
+    input.setAttribute("aria-label", `입력 항목 ${variable}`);
     input.value = state.variableValues[variable] ?? "";
-    input.placeholder = `${variable} 입력`;
+    input.placeholder = `${variable} 작성`;
     input.addEventListener("input", (event) => {
       state.variableValues[variable] = event.target.value;
       els.generatedPrompt.value = applyVariables(prompt);

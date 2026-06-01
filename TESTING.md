@@ -20,7 +20,7 @@ The suite checks:
 - catalog statistics and rendered prompt cards
 - filter reset
 - audience, industry, workflow, tag, and sort controls
-- variable input generation
+- custom input generation
 - base and generated prompt copy buttons
 - mobile viewport usability
 
@@ -28,5 +28,5 @@ The suite checks:
 
 - Playwright initially opened the GitHub Pages account root instead of the project path. The test now navigates to the configured project-relative URL.
 - The student audience count expectation was corrected from 150 to 175 because 7 student-oriented categories x 25 workflows are present.
-- Variable inputs reused labels such as `대상`, which conflicted with sidebar filter labels for browser automation and assistive technology. Generated variable inputs now receive explicit `aria-label` values such as `변수 대상`.
+- Custom input fields reused labels such as `대상`, which conflicted with sidebar filter labels for browser automation and assistive technology. Generated input fields now receive explicit `aria-label` values such as `입력 항목 대상`.
 - The sticky builder panel could place copy buttons below the viewport on desktop. The panel now has a viewport-bounded height and internal scrolling so all controls remain reachable.
