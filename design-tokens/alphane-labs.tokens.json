@@ -1,0 +1,51 @@
+{
+  "source": {
+    "name": "Alphane Labs Solutions",
+    "url": "https://solutions.alphanelabs.com/",
+    "method": "Playwright computed-style extraction, translated into original prompt-library design tokens",
+    "notes": "Derived visual system only. No assets or source CSS copied."
+  },
+  "colors": {
+    "ink": "#050505",
+    "paper": "#ffffff",
+    "mist": "#f3f8fe",
+    "electricBlue": "#0094d3",
+    "signalGreen": "#8fd356",
+    "softLine": "#d9e5ed",
+    "dim": "#5f676d"
+  },
+  "typography": {
+    "bodyFamily": "Aeonik, Satoshi, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+    "monoFamily": "Aeonik Mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    "bodySize": "16px",
+    "bodyWeight": "500",
+    "bodyLineHeight": "1.25",
+    "heroSizeDesktop": "54px",
+    "heroSizeMobile": "38px",
+    "headingWeight": "500"
+  },
+  "shape": {
+    "panelRadius": "8px",
+    "controlRadius": "8px",
+    "pillRadius": "999px"
+  },
+  "layout": {
+    "outerPaddingDesktop": "38px",
+    "outerPaddingMobile": "18px",
+    "sidebarWidth": "324px",
+    "workspaceGap": "20px"
+  },
+  "components": {
+    "button": {
+      "primaryBackground": "#8fd356",
+      "primaryText": "#050505",
+      "secondaryBackground": "#ffffff",
+      "secondaryBorder": "#050505"
+    },
+    "panel": {
+      "background": "#ffffff",
+      "border": "#050505",
+      "accentBackground": "#f3f8fe"
+    }
+  }
+}
