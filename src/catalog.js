@@ -534,7 +534,260 @@ const WORKFLOWS = [
   },
 ];
 
+const WORKFLOW_PLAYBOOKS = {
+  "market-research": {
+    lens: "관찰된 사실, 합리적 추정, 추가 검증이 필요한 가설을 분리하는 조사자 관점",
+    method: "시장 크기보다 의사결정 맥락, 반복 행동, 구매/참여 장벽을 먼저 찾습니다.",
+    outputFrame: "상황 요약, 관찰 가능한 신호, 핵심 가설, 반대 가설, 확인 질문, 다음 조사 액션",
+    qualityBar: "출처가 필요한 사실과 사용자의 입력만으로 판단 가능한 내용을 분리합니다.",
+    avoid: "검색한 척하거나 숫자를 단정하지 말고, 검증 경로를 함께 제시하세요.",
+    card: "조사 질문과 가설을 구분해 다음 액션까지 이어주는 프롬프트입니다.",
+  },
+  persona: {
+    lens: "고객을 인구통계가 아니라 상황, 압박, 선택 기준으로 이해하는 리서처 관점",
+    method: "페르소나마다 '왜 지금 움직이는지'와 '왜 미루는지'를 함께 만듭니다.",
+    outputFrame: "페르소나 3종, 촉발 상황, 불안, 구매/참여 기준, 말투, 메시지 방향",
+    qualityBar: "각 페르소나는 실제 행동이 달라질 만큼 구분되어야 합니다.",
+    avoid: "나이/성별 같은 얕은 프로필만 늘어놓지 마세요.",
+    card: "고객의 선택 기준과 망설임을 실제 메시지로 바꾸는 프롬프트입니다.",
+  },
+  idea: {
+    lens: "아이디어를 많이 내는 사람보다 작게 검증하는 실험 설계자 관점",
+    method: "아이디어를 난이도, 증거 수집 속도, 실패 비용으로 나눠 우선순위를 정합니다.",
+    outputFrame: "아이디어 목록, 빠른 실험안, 필요한 증거, 실패 신호, 48시간 첫 액션",
+    qualityBar: "각 아이디어는 바로 실행 가능한 첫 행동을 포함해야 합니다.",
+    avoid: "그럴듯하지만 실행 조건이 없는 아이디어를 추천하지 마세요.",
+    card: "브레인스토밍을 검증 가능한 실험 목록으로 바꾸는 프롬프트입니다.",
+  },
+  "product-planning": {
+    lens: "기능보다 구매/사용 이유를 먼저 정리하는 상품 기획자 관점",
+    method: "최소 구성, 표준 구성, 확장 구성을 나누고 각 구성의 선택 이유를 설명합니다.",
+    outputFrame: "핵심 가치, 구성안, 가격/패키지, 차별점, 출시 전 검증 체크리스트",
+    qualityBar: "대상이 돈이나 시간을 쓰는 이유가 한 문장으로 설명되어야 합니다.",
+    avoid: "기능을 많이 넣는 방식으로만 해결하려 하지 마세요.",
+    card: "상품 구조와 출시 전 검증 포인트를 함께 잡는 프롬프트입니다.",
+  },
+  "brand-message": {
+    lens: "멋진 문구보다 기억되는 약속을 만드는 브랜드 에디터 관점",
+    method: "짧은 문장, 설명형 문장, 고객이 쓰는 말투를 나란히 비교합니다.",
+    outputFrame: "핵심 약속, 한 줄 소개, 상세 소개, 톤 가이드, 금지어, CTA 변형",
+    qualityBar: "차별점이 추상어가 아니라 고객이 체감할 변화로 표현되어야 합니다.",
+    avoid: "혁신적, 최고의, 압도적 같은 검증 어려운 표현에 기대지 마세요.",
+    card: "브랜드 문장을 과장 없이 선명하게 정리하는 프롬프트입니다.",
+  },
+  "landing-page": {
+    lens: "방문자의 의심을 순서대로 해소하는 전환 설계자 관점",
+    method: "헤드라인부터 FAQ까지 '왜 지금, 왜 여기서, 왜 믿을 수 있는지' 흐름으로 구성합니다.",
+    outputFrame: "히어로 문구, 섹션 순서, 증거 배치, FAQ, 반론 처리, CTA",
+    qualityBar: "각 섹션은 방문자의 다음 질문 하나에 답해야 합니다.",
+    avoid: "혜택만 반복하고 증거, 조건, 제한을 숨기지 마세요.",
+    card: "판매 페이지를 설득 흐름과 반론 처리 중심으로 만드는 프롬프트입니다.",
+  },
+  "blog-seo": {
+    lens: "검색 의도와 독자의 현재 지식을 맞추는 콘텐츠 전략가 관점",
+    method: "키워드보다 검색자가 해결하려는 일을 먼저 정의하고 목차를 설계합니다.",
+    outputFrame: "검색 의도, 제목 후보, 목차, 본문 초안, FAQ, 메타 설명, 내부링크 아이디어",
+    qualityBar: "본문은 얕은 정의가 아니라 사례, 판단 기준, 실수 방지를 포함해야 합니다.",
+    avoid: "키워드 반복으로 품질을 대신하지 마세요.",
+    card: "검색 유입 글을 문제 해결형 구조로 만드는 프롬프트입니다.",
+  },
+  "social-content": {
+    lens: "알고리즘보다 저장/공유할 이유를 만드는 콘텐츠 편집자 관점",
+    method: "후킹, 본문 가치, 댓글 유도, 재활용 포맷을 한 번에 설계합니다.",
+    outputFrame: "콘텐츠 각도 10개, 첫 문장, 본문, 시각 요소, CTA, 댓글 질문",
+    qualityBar: "각 게시물은 서로 다른 감정 또는 정보 각도를 가져야 합니다.",
+    avoid: "강한 첫 문장만 있고 본문 가치가 빈약한 글을 만들지 마세요.",
+    card: "SNS 게시물을 후킹과 실제 가치가 같이 살아 있게 만드는 프롬프트입니다.",
+  },
+  "ad-copy": {
+    lens: "감이 아니라 가설을 테스트하는 퍼포먼스 카피라이터 관점",
+    method: "문제 인식, 혜택, 증거, 긴급성, 리스크 완화 각도로 카피를 나눕니다.",
+    outputFrame: "테스트 가설, 카피 세트, 금지 표현 점검, 랜딩 연결 문구, 성과 해석 기준",
+    qualityBar: "각 카피는 어떤 반응을 검증하려는지 명확해야 합니다.",
+    avoid: "심의나 플랫폼 정책에 걸릴 수 있는 단정, 과장, 공포 조장을 피하세요.",
+    card: "광고 문구를 A/B 테스트 가능한 가설로 나누는 프롬프트입니다.",
+  },
+  "email-message": {
+    lens: "상대가 다음 행동을 쉽게 결정하게 돕는 커뮤니케이션 편집자 관점",
+    method: "목적, 맥락, 요청, 마감, 선택지를 짧은 문장으로 정리합니다.",
+    outputFrame: "짧은 버전, 표준 버전, 정중한 버전, 제목/첫 문장, 후속 메시지",
+    qualityBar: "수신자가 무엇을 언제까지 하면 되는지 바로 보여야 합니다.",
+    avoid: "예의는 갖추되 핵심 요청을 흐리게 만들지 마세요.",
+    card: "이메일/문자/카톡을 명확하고 부담 없게 다듬는 프롬프트입니다.",
+  },
+  proposal: {
+    lens: "상대의 의사결정 기준부터 맞추는 제안 전략가 관점",
+    method: "문제, 비용, 대안, 제안 가치, 다음 행동을 한 흐름으로 정리합니다.",
+    outputFrame: "의사결정 기준, 제안서 목차, 핵심 슬라이드 문구, 예상 질문, 마무리 CTA",
+    qualityBar: "제안의 장점보다 상대가 왜 바꿔야 하는지가 먼저 드러나야 합니다.",
+    avoid: "우리 소개를 길게 쓰고 상대의 문제를 뒤로 미루지 마세요.",
+    card: "제안서와 영업자료를 의사결정 흐름에 맞게 만드는 프롬프트입니다.",
+  },
+  "cold-outreach": {
+    lens: "짧지만 조사한 티가 나는 아웃리치 작성자 관점",
+    method: "상대 맥락, 제안 이유, 작은 요청 하나로 메시지를 압축합니다.",
+    outputFrame: "메일 3종, DM 3종, 제목 10개, 첫 문장 변형, 팔로업 2개",
+    qualityBar: "첫 문장에 상대와 무관한 일반론이 없어야 합니다.",
+    avoid: "과한 친근함, 장황한 자기소개, 여러 요청을 한 번에 넣는 실수를 피하세요.",
+    card: "콜드메일과 DM을 짧고 구체적인 첫 연락으로 바꾸는 프롬프트입니다.",
+  },
+  "customer-response": {
+    lens: "감정 인정과 정책 경계를 함께 지키는 CS 리더 관점",
+    method: "공감, 사실 확인, 가능한 조치, 불가능한 이유, 다음 안내를 분리합니다.",
+    outputFrame: "즉시 답변, 상세 답변, 내부 메모, 정책 설명, 재발 방지 문구",
+    qualityBar: "고객이 들은 느낌과 해결 범위를 동시에 이해해야 합니다.",
+    avoid: "사과만 반복하거나, 정책을 방패처럼 내세우는 답변을 피하세요.",
+    card: "고객 문의를 감정과 정책 모두 놓치지 않고 처리하는 프롬프트입니다.",
+  },
+  "review-response": {
+    lens: "공개 답변을 보는 다음 고객까지 고려하는 평판 관리자 관점",
+    method: "리뷰 감정, 사실관계, 공개 답변, 내부 개선 메모를 분리합니다.",
+    outputFrame: "긍정/중립/부정 답변, 짧은 버전, 상세 버전, 내부 개선 메모",
+    qualityBar: "답변은 작성자뿐 아니라 읽고 있는 잠재 고객에게도 신뢰를 줘야 합니다.",
+    avoid: "논쟁하거나 책임을 돌리는 뉘앙스를 만들지 마세요.",
+    card: "리뷰 답변을 평판 관리와 내부 개선까지 연결하는 프롬프트입니다.",
+  },
+  "crisis-notice": {
+    lens: "불확실한 상황에서 신뢰를 지키는 커뮤니케이션 책임자 관점",
+    method: "확인된 사실, 영향 범위, 현재 조치, 다음 업데이트를 분리합니다.",
+    outputFrame: "짧은 공지, 상세 공지, FAQ, 내부 공유문, 다음 업데이트 문구",
+    qualityBar: "모르는 것을 숨기지 않고 다음 확인 시점을 제시해야 합니다.",
+    avoid: "책임 회피, 과도한 낙관, 확인되지 않은 원인 단정을 피하세요.",
+    card: "문제 상황 공지를 사실과 조치 중심으로 정리하는 프롬프트입니다.",
+  },
+  "faq-help": {
+    lens: "초보자의 언어로 복잡한 정책을 풀어내는 헬프센터 에디터 관점",
+    method: "질문을 실제 말투로 만들고, 답변은 결론부터 짧게 시작합니다.",
+    outputFrame: "FAQ 15개, 한 줄 답변, 상세 설명, 관련 링크 자리, 추가 안내 문구",
+    qualityBar: "답변을 읽고 문의를 다시 남기지 않아도 될 만큼 다음 행동이 분명해야 합니다.",
+    avoid: "내부 용어와 예외 조항을 설명 없이 던지지 마세요.",
+    card: "반복 문의를 줄이는 FAQ와 헬프센터 문서를 만드는 프롬프트입니다.",
+  },
+  "meeting-report": {
+    lens: "회의 내용을 실행 책임으로 바꾸는 운영 PM 관점",
+    method: "논의, 결정, 보류, 담당자, 마감일을 분리합니다.",
+    outputFrame: "요약, 결정사항, 액션 아이템, 리스크, 확인 질문, 공유용 메시지",
+    qualityBar: "누가 무엇을 언제까지 해야 하는지 빠지면 안 됩니다.",
+    avoid: "회의 내용을 예쁘게 요약만 하고 실행 항목을 흐리지 마세요.",
+    card: "회의와 업무 메모를 책임과 마감이 있는 실행안으로 바꾸는 프롬프트입니다.",
+  },
+  documentation: {
+    lens: "처음 온 사람도 따라 할 수 있게 만드는 운영 매뉴얼 작성자 관점",
+    method: "목적, 준비물, 절차, 판단 기준, 예외 처리, 업데이트 규칙을 나눕니다.",
+    outputFrame: "SOP 초안, 체크리스트, 예외 처리, 담당자 기준, 업데이트 규칙",
+    qualityBar: "숙련자의 암묵지를 판단 기준과 예외 처리로 풀어야 합니다.",
+    avoid: "단계만 나열하고 왜 그렇게 하는지 설명하지 않는 문서를 피하세요.",
+    card: "반복 업무를 신규 담당자도 따라 할 수 있는 SOP로 만드는 프롬프트입니다.",
+  },
+  "hiring-interview": {
+    lens: "좋은 사람보다 역할에서 성공할 행동을 정의하는 채용 설계자 관점",
+    method: "역량을 행동 증거, 질문, 평가 기준, 과제 방식으로 변환합니다.",
+    outputFrame: "채용공고, 평가 루브릭, 면접 질문, 과제 안내, 합불 메일",
+    qualityBar: "각 질문은 특정 역량을 평가하는 이유가 있어야 합니다.",
+    avoid: "성격 좋은 사람, 핏 좋은 사람 같은 모호한 기준에 기대지 마세요.",
+    card: "채용 기준을 행동 증거와 평가표로 바꾸는 프롬프트입니다.",
+  },
+  "onboarding-training": {
+    lens: "설명보다 실제 수행을 설계하는 교육 경험 디자이너 관점",
+    method: "학습 목표, 짧은 설명, 실습, 피드백, 점검 질문을 묶습니다.",
+    outputFrame: "교육 목차, 실습 시나리오, 체크리스트, 퀴즈, 피드백 문구",
+    qualityBar: "교육이 끝났을 때 학습자가 할 수 있어야 하는 행동이 명확해야 합니다.",
+    avoid: "정보 전달만 많고 연습과 확인이 없는 교육안을 만들지 마세요.",
+    card: "온보딩과 교육자료를 실습 중심으로 설계하는 프롬프트입니다.",
+  },
+  "data-analysis": {
+    lens: "데이터보다 의사결정 질문을 먼저 정리하는 분석 파트너 관점",
+    method: "질문, 필요한 컬럼, 제외 조건, 분석 방법, 해석 주의점을 분리합니다.",
+    outputFrame: "분석 질문, 필요한 데이터, 방법, 시각화안, 해석 주의점, 다음 실험",
+    qualityBar: "분석 결과가 어떤 결정을 바꿀지 먼저 정의해야 합니다.",
+    avoid: "데이터가 있으면 다 알 수 있다는 식의 과도한 해석을 피하세요.",
+    card: "분석 요청을 의사결정 가능한 질문으로 정리하는 프롬프트입니다.",
+  },
+  "kpi-okr": {
+    lens: "목표를 행동 변화와 측정 지표로 연결하는 성과 설계자 관점",
+    method: "결과 지표, 선행 지표, 점검 리듬, 왜곡 가능성을 함께 봅니다.",
+    outputFrame: "OKR, KPI, 선행지표, 후행지표, 주간 점검 질문, 지표 왜곡 리스크",
+    qualityBar: "지표가 좋아져도 실제 목표가 나빠지는 역효과를 점검해야 합니다.",
+    avoid: "측정하기 쉬운 숫자만 KPI로 삼지 마세요.",
+    card: "목표와 지표를 실행 리듬까지 연결하는 프롬프트입니다.",
+  },
+  automation: {
+    lens: "자동화보다 실패했을 때 안전한 흐름을 설계하는 운영 자동화 설계자 관점",
+    method: "트리거, 입력, 처리, 검수, 예외, 롤백을 단계별로 나눕니다.",
+    outputFrame: "자동화 흐름, 도구별 역할, 예외 처리, 사람 검토 지점, 검수 체크리스트",
+    qualityBar: "완전 자동화와 사람 검토가 필요한 구간이 분명해야 합니다.",
+    avoid: "위험한 결정을 자동화에 넘기거나 실패 시 처리를 생략하지 마세요.",
+    card: "반복 업무 자동화를 검수와 예외 처리까지 포함해 설계하는 프롬프트입니다.",
+  },
+  "legal-risk": {
+    lens: "답을 단정하지 않고 전문가에게 물어볼 쟁점을 정리하는 리스크 매니저 관점",
+    method: "사실관계, 이해관계자, 리스크, 확인 질문, 보수적 선택지를 분리합니다.",
+    outputFrame: "사실관계 정리, 리스크 목록, 확인 질문, 추가 자료, 전문가 상담 메모",
+    qualityBar: "법률 조언처럼 단정하지 않고 확인해야 할 질문으로 정리해야 합니다.",
+    avoid: "위법/적법을 단정하거나 계약 문구를 최종 판단처럼 제시하지 마세요.",
+    card: "계약과 정책 이슈를 전문가 상담 전 질문으로 정리하는 프롬프트입니다.",
+  },
+  "study-learning": {
+    lens: "정답 제공보다 이해, 연습, 복습 루틴을 설계하는 학습 코치 관점",
+    method: "현재 수준을 기준으로 개념, 예제, 연습, 피드백, 복습을 단계화합니다.",
+    outputFrame: "학습 계획, 핵심 개념, 예제, 연습문제, 자기 점검, 복습 루틴",
+    qualityBar: "학습자가 스스로 설명하고 적용할 수 있는 확인 장치가 있어야 합니다.",
+    avoid: "과제나 답안을 대신 완성하는 방식으로 흐르지 마세요.",
+    card: "공부와 연구를 이해 중심의 실행 루틴으로 바꾸는 프롬프트입니다.",
+  },
+};
+
+const AUDIENCE_GUIDES = {
+  사업자: "매출, 재방문, 운영 부담, 고객 신뢰를 함께 고려하세요.",
+  전문직: "규정, 리스크 고지, 신뢰, 기록 가능성을 우선하세요.",
+  교육자: "학습자 수준, 보호자 커뮤니케이션, 평가 공정성을 고려하세요.",
+  스타트업: "가설 검증, 속도, 제품 학습, 제한된 리소스를 기준으로 판단하세요.",
+  실무자: "상사/동료에게 공유 가능한 구조와 바로 실행할 액션을 중시하세요.",
+  크리에이터: "반응을 얻는 표현과 장기적인 신뢰를 같이 보세요.",
+  운영자: "참여자 경험, 운영 리스크, 안내 명확성을 우선하세요.",
+  개인사업자: "범위 관리, 견적, 고객 기대치, 반복 가능한 운영 방식을 고려하세요.",
+  창작자: "세계관, 팬 반응, 지속 가능한 제작 리듬을 함께 보세요.",
+  학생: "정답 대체보다 이해, 자기 점검, 제출 윤리를 우선하세요.",
+  보호자: "아이의 자율성, 생활 리듬, 대화 방식이 상하지 않게 설계하세요.",
+  개인: "강점 정리, 실행 부담, 다음 커리어 선택에 도움이 되게 구성하세요.",
+};
+
+const PROMPT_VARIANTS = [
+  {
+    label: "진단형",
+    intent: "답을 바로 만들기보다 문제의 원인과 누락 정보를 먼저 좁힙니다.",
+    step: "현재 입력에서 가장 위험한 가정 3개와 확인 질문을 먼저 제시해 주세요.",
+    suffix: "문제를 먼저 좁히는 진단형 구조입니다.",
+  },
+  {
+    label: "실행형",
+    intent: "사용자가 오늘 바로 움직일 수 있게 산출물과 첫 행동을 중심으로 만듭니다.",
+    step: "24시간 안에 실행할 수 있는 첫 액션과 필요한 준비물을 따로 적어 주세요.",
+    suffix: "바로 실행할 수 있는 단계 중심 구조입니다.",
+  },
+  {
+    label: "검증형",
+    intent: "초안의 약점과 실패 가능성을 먼저 찾아 결과물의 신뢰도를 높입니다.",
+    step: "완성안 뒤에 반례, 실패 조건, 수정 우선순위를 붙여 주세요.",
+    suffix: "결과물을 한 번 더 검증하는 리뷰형 구조입니다.",
+  },
+  {
+    label: "비교형",
+    intent: "하나의 답만 내지 않고 선택지와 트레이드오프를 비교합니다.",
+    step: "최소 3가지 대안을 만들고, 비용/효과/리스크 기준으로 비교해 주세요.",
+    suffix: "여러 대안을 비교해 선택을 돕는 구조입니다.",
+  },
+];
+
+const getWorkflowPlaybook = (workflow) => WORKFLOW_PLAYBOOKS[workflow.id];
+const getAudienceGuide = (industry) => AUDIENCE_GUIDES[industry.audience] || "사용자의 실제 맥락과 실행 가능성을 우선하세요.";
+const getPromptVariant = (index) => PROMPT_VARIANTS[index % PROMPT_VARIANTS.length];
+const listIndustryTags = (industry) => industry.tags.join(", ");
+
 const buildPrompt = (industry, workflow, index) => {
+  const playbook = getWorkflowPlaybook(workflow);
+  const audienceGuide = getAudienceGuide(industry);
+  const variant = getPromptVariant(index);
   const variableLines = workflow.variables
     .map((variable) => `- ${variable}: {${variable}}`)
     .join("\n");
@@ -549,29 +802,50 @@ const buildPrompt = (industry, workflow, index) => {
     functionId: workflow.id,
     tags: [...new Set([...industry.tags, ...workflow.tags])],
     variables: workflow.variables,
-    description: `${industry.context} 맥락에서 ${workflow.name} 업무를 바로 시작할 수 있게 돕는 프롬프트입니다.`,
-    outputFormat: workflow.output,
+    description: `${industry.context} 맥락에서 ${playbook.card} ${variant.suffix}`,
+    outputFormat: playbook.outputFrame,
     exampleInput: `${workflow.variables[0]}: ${industry.context}`,
     prompt: `당신은 "${industry.name}" 분야의 실무를 잘 이해하는 AI 업무 파트너입니다.
+
+목표:
+- 사용자가 ${workflow.name} 업무를 더 빠르고 정확하게 처리하도록 돕습니다.
+- 일반론이 아니라 "${industry.context}" 맥락에 맞춘 결과물을 만듭니다.
+- 이번 프롬프트는 ${variant.label}입니다. ${variant.intent}
 
 배경:
 - 분야: ${industry.name}
 - 대상: ${industry.audience}
+- 산업 키워드: ${listIndustryTags(industry)}
 - 맥락: ${industry.context}
 - 업무 유형: ${workflow.name}
+- 관점: ${playbook.lens}
 
 사용자 입력:
 ${variableLines}
 
-작업:
-1. 먼저 사용자의 상황을 한 문단으로 재정의해 주세요.
-2. ${workflow.instruction}
-3. 실행자가 바로 복사해서 쓸 수 있는 문장과 체크리스트를 포함해 주세요.
-4. 확실하지 않은 내용은 "확인 필요"로 표시하고, 추가로 물어볼 질문을 적어 주세요.
-5. 한국어로 자연스럽고 실무적인 톤을 유지해 주세요.
+진행 방식:
+1. 입력이 부족하면 답을 시작하기 전에 꼭 필요한 확인 질문을 최대 5개만 물어보세요.
+2. 사용자의 상황을 한 문단으로 재정의하고, 핵심 제약과 기회를 분리해 주세요.
+3. ${workflow.instruction}
+4. ${playbook.method}
+5. ${variant.step}
+6. ${audienceGuide}
+7. 실행자가 바로 복사해서 쓸 수 있는 문장, 표, 체크리스트를 포함해 주세요.
+8. 확실하지 않은 내용은 "확인 필요"로 표시하고, 검증 방법을 함께 적어 주세요.
+
+품질 기준:
+- ${playbook.qualityBar}
+- 결과물은 초안, 개선안, 바로 쓸 문장으로 나누어 주세요.
+- 업계 특성상 민감한 표현, 규정, 비용, 일정, 책임 소재가 있으면 별도 경고로 표시하세요.
+- 사용자가 다음에 무엇을 해야 하는지 마지막에 3단계로 정리해 주세요.
+
+피해야 할 실수:
+- ${playbook.avoid}
+- 빈칸 채우기식 일반론, 과장된 성과 약속, 출처 없는 숫자 단정을 피하세요.
+- 사용자의 일을 대신 끝내기보다 판단 기준과 실행 가능한 초안을 제공하세요.
 
 출력 형식:
-${workflow.output}`,
+${playbook.outputFrame}`,
   };
 };
 
@@ -826,6 +1100,9 @@ const TREND_PATTERNS = [
 
 const buildTrendPrompt = (pattern, industry, index) => {
   const workflow = WORKFLOWS.find((item) => item.id === pattern.functionId);
+  const playbook = getWorkflowPlaybook(workflow);
+  const audienceGuide = getAudienceGuide(industry);
+  const variant = getPromptVariant(index + BASE_PROMPTS.length);
   const variableLines = pattern.variables
     .map((variable) => `- ${variable}: {${variable}}`)
     .join("\n");
@@ -840,28 +1117,48 @@ const buildTrendPrompt = (pattern, industry, index) => {
     functionId: workflow.id,
     tags: [...new Set([...industry.tags, ...workflow.tags, ...pattern.tags])],
     variables: pattern.variables,
-    description: `${industry.context} 맥락에 맞춰 ${pattern.description}`,
+    description: `${industry.context} 맥락에 맞춰 ${pattern.description} ${variant.suffix}`,
     outputFormat: pattern.outputFormat,
     exampleInput: `${pattern.variables[0]}: ${industry.context}`,
     prompt: `당신은 "${industry.name}" 분야의 실무 맥락과 최신 AI 활용 흐름을 함께 이해하는 프롬프트 코치입니다.
 
+목표:
+- Reddit, X, Instagram에서 반응이 좋은 구조를 실무 결과물로 번역합니다.
+- 유행 문법을 그대로 따라 하지 않고 "${industry.context}" 상황에서 쓸 수 있게 조정합니다.
+- 이번 프롬프트는 ${variant.label}입니다. ${variant.intent}
+
 배경:
 - 분야: ${industry.name}
 - 대상: ${industry.audience}
+- 산업 키워드: ${listIndustryTags(industry)}
 - 맥락: ${industry.context}
 - 업무 유형: ${workflow.name}
 - 트렌드 패턴: ${pattern.title}
+- 실무 관점: ${playbook.lens}
 
 사용자 입력:
 ${variableLines}
 
-작업:
-1. 사용자의 목적과 제약을 먼저 한 문단으로 정리해 주세요.
+트렌드 적용 방식:
+1. 먼저 이 패턴이 왜 반응을 얻는지 심리적/실무적 이유를 3개로 설명해 주세요.
 2. ${pattern.instruction}
-3. Reddit, X, Instagram에서 반응이 좋은 구조를 참고하되, 과장/낚시/권리 침해가 생기지 않게 조정해 주세요.
-4. 바로 복사해서 쓸 수 있는 문장, 체크리스트, 변형안을 포함해 주세요.
-5. 확실하지 않은 내용은 "확인 필요"로 표시하고, 추가로 물어볼 질문을 적어 주세요.
-6. 한국어로 자연스럽고 실무적인 톤을 유지해 주세요.
+3. ${playbook.method}
+4. ${variant.step}
+5. ${audienceGuide}
+6. 과장, 낚시, 권리 침해, 민감한 단정이 생길 수 있는 지점을 표시하고 안전한 대안을 제시해 주세요.
+7. 같은 내용을 보수적 버전, 강한 버전, 짧은 버전으로 변형해 주세요.
+8. 바로 복사해서 쓸 수 있는 최종 산출물과 검수 체크리스트를 함께 주세요.
+
+품질 기준:
+- ${playbook.qualityBar}
+- 유행 포맷의 재미와 실무자의 신뢰를 동시에 만족해야 합니다.
+- 이미지/인물/브랜드가 관련되면 초상권, 상표, 허위 표현 가능성을 점검하세요.
+- 마지막에는 게시 또는 실행 전에 확인할 항목 5개를 적어 주세요.
+
+피해야 할 실수:
+- ${playbook.avoid}
+- 바이럴 문장만 만들고 실제 메시지나 행동으로 이어지지 않는 결과를 피하세요.
+- 출처 없는 수치, 특정 플랫폼에서 보장된 성과, 타인 사칭을 암시하지 마세요.
 
 출력 형식:
 ${pattern.outputFormat}`,

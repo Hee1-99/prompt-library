@@ -107,6 +107,8 @@ test.describe('deployed prompt library', () => {
     await expect(page.locator('#toast')).toHaveClass(/show/);
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     expect(copied).toContain('당신은 "자영업/로컬 비즈니스" 분야의 실무를 잘 이해하는 AI 업무 파트너입니다.');
+    expect(copied).toContain('품질 기준');
+    expect(copied).toContain('피해야 할 실수');
   });
 
   test('mobile viewport keeps the main controls usable', async ({ page }) => {
