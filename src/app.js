@@ -166,6 +166,7 @@ const renderBuilder = () => {
 
     const input = document.createElement("input");
     input.id = `var-${variable}`;
+    input.setAttribute("aria-label", `변수 ${variable}`);
     input.value = state.variableValues[variable] ?? "";
     input.placeholder = `${variable} 입력`;
     input.addEventListener("input", (event) => {

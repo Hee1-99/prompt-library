@@ -1,0 +1,13 @@
+{
+  "name": "prompt-library",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Korean AI prompt library with 1000 ready-to-copy prompts",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
+  }
+}

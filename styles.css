@@ -283,6 +283,8 @@ textarea {
 .builder-panel {
   position: sticky;
   top: 28px;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
   padding: 18px;
 }
 
