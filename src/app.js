@@ -155,6 +155,14 @@ const getFilteredPrompts = () => {
   });
 };
 
+const getVisibleTags = (prompt) => {
+  if (state.tag !== "all" && prompt.tags.includes(state.tag)) {
+    return [state.tag, ...prompt.tags.filter((tag) => tag !== state.tag)].slice(0, 4);
+  }
+
+  return prompt.tags.slice(0, 4);
+};
+
 const renderPrompts = () => {
   const prompts = getFilteredPrompts();
   els.resultSummary.textContent = `${PROMPTS.length.toLocaleString("ko-KR")}개 중 ${prompts.length.toLocaleString("ko-KR")}개 표시 중`;
@@ -173,7 +181,7 @@ const renderPrompts = () => {
       <h4>${prompt.title}</h4>
       <p>${prompt.description}</p>
       <div class="tag-row">
-        ${prompt.tags.slice(0, 4).map((tag) => `<span class="tag">${tag}</span>`).join("")}
+        ${getVisibleTags(prompt).map((tag) => `<span class="tag">${tag}</span>`).join("")}
       </div>
       <div class="button-row">
         <button class="primary-button" type="button" data-action="select" data-id="${prompt.id}">

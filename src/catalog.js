@@ -575,8 +575,306 @@ ${workflow.output}`,
   };
 };
 
-const PROMPTS = INDUSTRIES.flatMap((industry, industryIndex) =>
+const BASE_PROMPTS = INDUSTRIES.flatMap((industry, industryIndex) =>
   WORKFLOWS.map((workflow, workflowIndex) =>
     buildPrompt(industry, workflow, industryIndex * WORKFLOWS.length + workflowIndex),
   ),
 );
+
+const TREND_PATTERNS = [
+  {
+    id: "question-ladder",
+    title: "막힌 문제를 질문으로 뚫는 진단 프롬프트",
+    functionId: "idea",
+    industryIds: ["local-business", "saas-startup", "developer-team", "pm-po", "job-seeker"],
+    tags: ["트렌드", "진단", "질문"],
+    variables: ["막힌 문제", "이미 시도한 방법", "피하고 싶은 해결책", "성공 기준"],
+    outputFormat: "질문 10개, 새로운 접근 3개, 첫 실행 단계, 확인해야 할 리스크",
+    description: "Reddit에서 반복적으로 공유되는 '충분히 질문하고 새 접근을 찾는' 방식의 문제 해결 프롬프트입니다.",
+    instruction:
+      "답을 바로 내기 전에 문제를 좁히는 질문을 우선 제시하고, 질문 없이 단정할 수 없는 부분은 가설로 표시해 주세요.",
+  },
+  {
+    id: "reverse-evaluator",
+    title: "결론을 거꾸로 검증하는 셀프 리뷰 프롬프트",
+    functionId: "meeting-report",
+    industryIds: ["legal", "finance-tax", "data-research", "graduate-researcher", "developer-team"],
+    tags: ["트렌드", "검증", "리뷰"],
+    variables: ["검토할 초안", "목표", "실패하면 안 되는 부분", "판단 기준"],
+    outputFormat: "핵심 주장, 취약한 근거, 반례, 수정안, 최종 체크리스트",
+    description: "초안을 만든 뒤 역방향으로 평가해 오류를 줄이는 2026식 검증 루프 프롬프트입니다.",
+    instruction:
+      "초안의 결론이 틀렸다고 가정하고 반례와 누락 정보를 먼저 찾은 뒤, 유지할 부분과 고칠 부분을 분리해 주세요.",
+  },
+  {
+    id: "agent-guardrails",
+    title: "에이전트 실행 전 가드레일 설계 프롬프트",
+    functionId: "automation",
+    industryIds: ["saas-startup", "developer-team", "customer-support", "logistics", "public-nonprofit"],
+    tags: ["트렌드", "에이전트", "가드레일"],
+    variables: ["자동화 목표", "사용할 도구", "금지 행동", "사람 검토가 필요한 조건"],
+    outputFormat: "작업 흐름, 도구 사용 조건, 중단 규칙, 검수 지점, 로그 항목",
+    description: "최근 에이전트형 업무 자동화에서 중요해진 제약, 검증, 중단 조건을 설계하는 프롬프트입니다.",
+    instruction:
+      "자동화가 해도 되는 일과 멈춰야 하는 일을 명확히 나누고, 위험한 단계에는 사람 승인 조건을 넣어 주세요.",
+  },
+  {
+    id: "prompt-to-workflow",
+    title: "한 문장 목표를 업무 파이프라인으로 바꾸기",
+    functionId: "automation",
+    industryIds: ["marketing-agency", "creator", "ecommerce", "hr", "events-community"],
+    tags: ["트렌드", "워크플로", "자동화"],
+    variables: ["최종 목표", "반복되는 입력", "사용 가능한 도구", "검토 담당자"],
+    outputFormat: "트리거, 단계별 작업, 산출물, 예외 처리, 리뷰 게이트",
+    description: "단일 프롬프트보다 흐름과 리뷰 게이트를 설계하는 방식으로 확장한 업무 자동화 프롬프트입니다.",
+    instruction:
+      "한 번의 답변이 아니라 반복 실행 가능한 흐름으로 쪼개고, 각 단계의 입력과 산출물을 짝지어 주세요.",
+  },
+  {
+    id: "wait-what-hook",
+    title: "X/Threads용 '잠깐 뭐라고?' 훅 만들기",
+    functionId: "social-content",
+    industryIds: ["creator", "marketing-agency", "saas-startup", "freelancer", "career-transition"],
+    tags: ["트렌드", "X", "훅"],
+    variables: ["주제", "타깃 독자", "반전 포인트", "말투"],
+    outputFormat: "짧은 훅 20개, 본문 스레드 3개, 댓글 유도 문장, 피해야 할 과장",
+    description: "X와 Threads에서 많이 쓰이는 반전형 첫 문장 구조를 실무 콘텐츠로 바꾸는 프롬프트입니다.",
+    instruction:
+      "낚시성 문장보다 실제 배울 점이 있는 반전으로 시작하고, 첫 문장만 강한 글이 되지 않게 본문 논리를 이어 주세요.",
+  },
+  {
+    id: "thats-me-story",
+    title: "독자가 '이거 내 얘기다'라고 느끼는 짧은 이야기",
+    functionId: "social-content",
+    industryIds: ["restaurant-cafe", "beauty", "academy", "creator", "parent-learning"],
+    tags: ["트렌드", "공감", "스토리"],
+    variables: ["상황", "독자의 속마음", "전환점", "제안하고 싶은 행동"],
+    outputFormat: "짧은 이야기 5개, 첫 문장, 감정 포인트, CTA, 댓글 질문",
+    description: "Instagram/Reels 계정에서 자주 쓰는 공감형 스토리텔링을 업종별 콘텐츠로 바꾸는 프롬프트입니다.",
+    instruction:
+      "과한 드라마 대신 실제 고객이 겪는 작은 불편과 속마음을 중심으로 짧고 선명하게 작성해 주세요.",
+  },
+  {
+    id: "seven-second-reel",
+    title: "7초 안에 붙잡는 숏폼 오프닝",
+    functionId: "social-content",
+    industryIds: ["creator", "restaurant-cafe", "beauty", "travel", "game-entertainment"],
+    tags: ["트렌드", "릴스", "숏폼"],
+    variables: ["영상 주제", "첫 장면", "시청자", "원하는 반응"],
+    outputFormat: "7초 오프닝 15개, 화면 구성, 자막, 컷 전환, 다음 장면",
+    description: "Reels/TikTok/Shorts에서 반복되는 초반 유지율 중심의 숏폼 훅 프롬프트입니다.",
+    instruction:
+      "첫 2초의 화면과 자막을 함께 제안하고, 소리 없이 봐도 이해되는 구조로 작성해 주세요.",
+  },
+  {
+    id: "spicy-carousel",
+    title: "의견처럼 시작해 유용하게 끝나는 캐러셀",
+    functionId: "social-content",
+    industryIds: ["marketing-agency", "finance-insurance", "legal", "teacher-instructor", "pm-po"],
+    tags: ["트렌드", "캐러셀", "교육"],
+    variables: ["주제", "논쟁적 관점", "알려줄 핵심", "독자 수준"],
+    outputFormat: "슬라이드 8장, 각 장 제목, 본문, 저장 유도 문장, 댓글 질문",
+    description: "Instagram/LinkedIn에서 반응이 좋은 관점 제시형 교육 캐러셀 프롬프트입니다.",
+    instruction:
+      "자극적인 제목으로 시작하되 본문은 실용적인 기준과 예시로 설득하고, 단정적 조언은 피해주세요.",
+  },
+  {
+    id: "linkedin-contrarian",
+    title: "LinkedIn용 반대 관점 인사이트 글",
+    functionId: "social-content",
+    industryIds: ["b2b-sales", "saas-startup", "hr", "freelancer", "finance-tax"],
+    tags: ["트렌드", "LinkedIn", "인사이트"],
+    variables: ["업계 통념", "반대 근거", "경험 사례", "독자가 얻을 교훈"],
+    outputFormat: "포스트 3개, 오프닝, 본문 구조, 한 줄 교훈, 댓글 유도 질문",
+    description: "LinkedIn에서 공유되는 '통념 뒤집기' 형식의 전문성 콘텐츠 프롬프트입니다.",
+    instruction:
+      "억지 반박이 아니라 실제 경험과 근거를 기반으로 통념의 한계를 설명하고, 실무자가 쓸 수 있는 기준으로 마무리해 주세요.",
+  },
+  {
+    id: "reddit-ama-seed",
+    title: "Reddit/커뮤니티 토론을 여는 질문 글",
+    functionId: "social-content",
+    industryIds: ["game-entertainment", "developer-team", "student-club", "public-nonprofit", "media-publishing"],
+    tags: ["트렌드", "Reddit", "커뮤니티"],
+    variables: ["커뮤니티 주제", "내 경험", "묻고 싶은 논점", "분위기"],
+    outputFormat: "게시글 5개, 제목, 본문, 토론 질문, 모더레이션 주의점",
+    description: "Reddit식 토론 게시글과 AMA 오프닝을 한국어 커뮤니티 운영에 맞춘 프롬프트입니다.",
+    instruction:
+      "홍보성 문구를 줄이고, 사람들이 자기 경험을 남기고 싶어지는 열린 질문으로 구성해 주세요.",
+  },
+  {
+    id: "action-figure-visual",
+    title: "브랜드/직무를 액션 피규어 패키지로 시각화하기",
+    functionId: "brand-message",
+    industryIds: ["creator", "freelancer", "beauty", "real-estate", "job-seeker"],
+    tags: ["트렌드", "이미지", "액션피규어"],
+    variables: ["인물 또는 브랜드", "상징 소품", "패키지 문구", "사용 플랫폼"],
+    outputFormat: "이미지 생성 프롬프트, 캡션 5개, 썸네일 문구, 사용 주의점",
+    description: "X/Instagram에서 확산된 액션 피규어 패키지 이미지를 포트폴리오와 브랜드 소개용으로 바꾸는 프롬프트입니다.",
+    instruction:
+      "실존 인물의 권리와 허위 과장을 피하고, 업의 특징이 소품과 패키지 정보로 보이게 구성해 주세요.",
+  },
+  {
+    id: "career-caricature",
+    title: "커리어 캐리커처형 자기소개 이미지",
+    functionId: "brand-message",
+    industryIds: ["career-transition", "job-seeker", "college-student", "creator", "freelancer"],
+    tags: ["트렌드", "이미지", "캐리커처"],
+    variables: ["나의 역할", "강점", "취미 또는 개성", "피하고 싶은 이미지"],
+    outputFormat: "이미지 프롬프트, 자기소개 문구, 게시 캡션, 포트폴리오 활용안",
+    description: "SNS에서 유행한 캐리커처/프로필 이미지 흐름을 커리어 브랜딩에 맞춘 프롬프트입니다.",
+    instruction:
+      "외모 평가가 아니라 역할, 강점, 도구, 작업 환경을 시각적 단서로 표현하고, 전문성이 흐려지지 않게 조정해 주세요.",
+  },
+  {
+    id: "retro-polaroid",
+    title: "레트로 폴라로이드 무드의 사례 콘텐츠",
+    functionId: "social-content",
+    industryIds: ["travel", "restaurant-cafe", "food-agriculture", "architecture-interior", "events-community"],
+    tags: ["트렌드", "이미지", "레트로"],
+    variables: ["보여줄 장면", "감정", "브랜드 톤", "게시 채널"],
+    outputFormat: "이미지 프롬프트, 캡션 5개, 스토리 문구, 해시태그",
+    description: "Instagram에서 반복적으로 보이는 빈티지/폴라로이드형 이미지 무드를 홍보 콘텐츠로 바꾸는 프롬프트입니다.",
+    instruction:
+      "분위기만 있는 이미지가 아니라 제품, 장소, 경험이 분명히 보이도록 장면과 소품을 구체화해 주세요.",
+  },
+  {
+    id: "miniature-3d-mockup",
+    title: "3D 미니어처/디오라마 상품 소개",
+    functionId: "product-planning",
+    industryIds: ["ecommerce", "manufacturing", "architecture-interior", "food-agriculture", "game-entertainment"],
+    tags: ["트렌드", "이미지", "3D"],
+    variables: ["상품 또는 공간", "핵심 특징", "비율 또는 구도", "사용처"],
+    outputFormat: "이미지 프롬프트, 상세페이지 문구, 비교 포인트, 주의 문구",
+    description: "3D 피규어/미니어처 이미지 트렌드를 상품 설명과 시각 자료 제작에 맞춘 프롬프트입니다.",
+    instruction:
+      "실제 상품 정보와 혼동되지 않도록 컨셉 이미지임을 구분하고, 구매 판단에 필요한 핵심 특징을 함께 설명해 주세요.",
+  },
+  {
+    id: "how-you-treat-me",
+    title: "AI가 보는 관계/브랜드 경험 이미지",
+    functionId: "brand-message",
+    industryIds: ["customer-support", "parent-learning", "teacher-instructor", "clinic", "finance-insurance"],
+    tags: ["트렌드", "이미지", "브랜딩"],
+    variables: ["상대 또는 고객", "관계의 특징", "보여주고 싶은 감정", "금지 표현"],
+    outputFormat: "이미지 프롬프트, 해석 문구, 개선 포인트, 게시 여부 체크리스트",
+    description: "'나를 어떻게 대하는지 이미지로 표현해줘' 유형의 유행을 고객 경험 점검용으로 재구성한 프롬프트입니다.",
+    instruction:
+      "감성적인 표현에 그치지 말고 관계에서 반복되는 행동, 말투, 기대를 시각적 은유와 개선 포인트로 연결해 주세요.",
+  },
+  {
+    id: "skill-tree-learning",
+    title: "스킬 트리 기반 학습 로드맵",
+    functionId: "study-learning",
+    industryIds: ["middle-high-student", "college-student", "graduate-researcher", "exam-certificate", "study-abroad-language"],
+    tags: ["트렌드", "학습", "로드맵"],
+    variables: ["배울 주제", "현재 수준", "주당 학습 시간", "목표"],
+    outputFormat: "스킬 트리, 선행 개념, 4주 계획, 연습 과제, 자가 테스트",
+    description: "Reddit에서 인기를 얻은 단계형 학습 설계 프롬프트를 한국어 학습 상황에 맞춘 버전입니다.",
+    instruction:
+      "학습 스타일 같은 근거 약한 분류보다 현재 수준, 시간, 목표에 맞춘 선행 개념과 연습 루틴을 중심으로 설계해 주세요.",
+  },
+  {
+    id: "mistake-notebook",
+    title: "오답과 실패를 패턴으로 바꾸는 복기 프롬프트",
+    functionId: "study-learning",
+    industryIds: ["middle-high-student", "college-student", "exam-certificate", "developer-team", "b2b-sales"],
+    tags: ["트렌드", "복기", "개선"],
+    variables: ["실패한 결과", "내가 한 선택", "정답 또는 좋은 예", "다음 기회"],
+    outputFormat: "실패 패턴, 원인 가설, 다음 행동, 연습문제, 체크 질문",
+    description: "학습과 업무에서 결과보다 반복 패턴을 찾는 복기형 프롬프트입니다.",
+    instruction:
+      "사용자를 비난하지 말고 반복되는 판단 패턴과 환경 요인을 분리해, 다음 시도에서 바꿀 행동을 구체화해 주세요.",
+  },
+  {
+    id: "paper-synthesis-map",
+    title: "문헌/자료를 논쟁 지도로 정리하기",
+    functionId: "market-research",
+    industryIds: ["graduate-researcher", "data-research", "media-publishing", "legal", "public-nonprofit"],
+    tags: ["트렌드", "리서치", "종합"],
+    variables: ["자료 묶음", "연구 질문", "대립되는 관점", "활용 목적"],
+    outputFormat: "관점 지도, 합의점, 쟁점, 빈틈, 다음 자료 수집 질문",
+    description: "긴 자료를 요약만 하지 않고 주장과 근거의 지도로 바꾸는 리서치 프롬프트입니다.",
+    instruction:
+      "각 자료의 주장을 동일한 기준으로 비교하고, 출처가 필요한 사실은 사용자가 확인할 수 있게 표시해 주세요.",
+  },
+  {
+    id: "hyper-personalized-dm",
+    title: "조사한 티가 나는 초개인화 DM",
+    functionId: "cold-outreach",
+    industryIds: ["b2b-sales", "freelancer", "marketing-agency", "saas-startup", "real-estate"],
+    tags: ["트렌드", "DM", "개인화"],
+    variables: ["상대 공개 정보", "내 제안", "공통 맥락", "원하는 다음 행동"],
+    outputFormat: "짧은 DM 5개, 이메일 3개, 팔로업 2개, 과한 표현 제거 목록",
+    description: "콜드메일보다 짧고 구체적인 X/LinkedIn/Instagram DM 흐름을 영업용으로 다듬는 프롬프트입니다.",
+    instruction:
+      "상대가 감시받는 느낌을 받지 않도록 공개 정보 활용을 자연스럽게 제한하고, 요청은 하나만 남겨 주세요.",
+  },
+  {
+    id: "one-page-business-plan",
+    title: "1페이지 사업계획과 90일 실행안",
+    functionId: "product-planning",
+    industryIds: ["local-business", "ecommerce", "saas-startup", "freelancer", "student-club"],
+    tags: ["트렌드", "사업계획", "90일"],
+    variables: ["아이디어", "고객", "수익모델", "첫 마케팅 채널"],
+    outputFormat: "1페이지 사업계획, 90일 실행안, 검증 지표, 중단 기준",
+    description: "소셜에서 많이 공유되는 1페이지 사업계획 프롬프트를 실제 실행과 검증 중심으로 보강했습니다.",
+    instruction:
+      "멋진 계획서보다 첫 90일에 검증할 가설, 필요한 증거, 그만둘 기준을 분명히 써 주세요.",
+  },
+];
+
+const buildTrendPrompt = (pattern, industry, index) => {
+  const workflow = WORKFLOWS.find((item) => item.id === pattern.functionId);
+  const variableLines = pattern.variables
+    .map((variable) => `- ${variable}: {${variable}}`)
+    .join("\n");
+
+  return {
+    id: `trend-${String(index + 1).padStart(4, "0")}`,
+    title: `${industry.name} - ${pattern.title}`,
+    industry: industry.name,
+    industryId: industry.id,
+    audience: industry.audience,
+    function: workflow.name,
+    functionId: workflow.id,
+    tags: [...new Set([...industry.tags, ...workflow.tags, ...pattern.tags])],
+    variables: pattern.variables,
+    description: `${industry.context} 맥락에 맞춰 ${pattern.description}`,
+    outputFormat: pattern.outputFormat,
+    exampleInput: `${pattern.variables[0]}: ${industry.context}`,
+    prompt: `당신은 "${industry.name}" 분야의 실무 맥락과 최신 AI 활용 흐름을 함께 이해하는 프롬프트 코치입니다.
+
+배경:
+- 분야: ${industry.name}
+- 대상: ${industry.audience}
+- 맥락: ${industry.context}
+- 업무 유형: ${workflow.name}
+- 트렌드 패턴: ${pattern.title}
+
+사용자 입력:
+${variableLines}
+
+작업:
+1. 사용자의 목적과 제약을 먼저 한 문단으로 정리해 주세요.
+2. ${pattern.instruction}
+3. Reddit, X, Instagram에서 반응이 좋은 구조를 참고하되, 과장/낚시/권리 침해가 생기지 않게 조정해 주세요.
+4. 바로 복사해서 쓸 수 있는 문장, 체크리스트, 변형안을 포함해 주세요.
+5. 확실하지 않은 내용은 "확인 필요"로 표시하고, 추가로 물어볼 질문을 적어 주세요.
+6. 한국어로 자연스럽고 실무적인 톤을 유지해 주세요.
+
+출력 형식:
+${pattern.outputFormat}`,
+  };
+};
+
+const TREND_PROMPTS = TREND_PATTERNS.flatMap((pattern) =>
+  pattern.industryIds.map((industryId) =>
+    INDUSTRIES.find((industry) => industry.id === industryId),
+  ),
+).map((industry, index) => {
+  const pattern = TREND_PATTERNS[Math.floor(index / 5)];
+  return buildTrendPrompt(pattern, industry, index);
+});
+
+const PROMPTS = [...BASE_PROMPTS, ...TREND_PROMPTS];

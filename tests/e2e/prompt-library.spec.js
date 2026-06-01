@@ -29,11 +29,11 @@ test.describe('deployed prompt library', () => {
   });
 
   test('loads catalog statistics and prompt cards', async ({ page }) => {
-    await expect(page.locator('#totalCount')).toHaveText('1,000');
+    await expect(page.locator('#totalCount')).toHaveText('1,100');
     await expect(page.locator('#industryCount')).toHaveText('40');
     await expect(page.locator('#functionCount')).toHaveText('25');
-    await expect(page.locator('#resultSummary')).toHaveText('1,000개 중 1,000개 표시 중');
-    await expect(page.locator('.result-card')).toHaveCount(1000);
+    await expect(page.locator('#resultSummary')).toHaveText('1,100개 중 1,100개 표시 중');
+    await expect(page.locator('.result-card')).toHaveCount(1100);
   });
 
   test('filter reset restores the full catalog', async ({ page }) => {
@@ -41,19 +41,19 @@ test.describe('deployed prompt library', () => {
     expect(await parseDisplayedCount(page)).toBe(40);
 
     await page.getByRole('button', { name: '필터 초기화' }).click();
-    await expect(page.locator('#resultSummary')).toHaveText('1,000개 중 1,000개 표시 중');
+    await expect(page.locator('#resultSummary')).toHaveText('1,100개 중 1,100개 표시 중');
   });
 
   test('audience, industry, workflow, tag, and sort controls work', async ({ page }) => {
     await page.getByLabel('대상').selectOption('학생');
-    expect(await parseDisplayedCount(page)).toBe(175);
+    expect(await parseDisplayedCount(page)).toBe(191);
     await expectVisibleCardsToInclude(page, '학생');
 
     await expect(page.getByLabel('산업군/분야').locator('option[value="saas-startup"]')).toHaveCount(0);
 
     await page.getByRole('button', { name: '필터 초기화' }).click();
     await page.getByLabel('산업군/분야').selectOption('saas-startup');
-    expect(await parseDisplayedCount(page)).toBe(25);
+    expect(await parseDisplayedCount(page)).toBe(31);
     await expectVisibleCardsToInclude(page, 'SaaS/IT 스타트업');
 
     await page.getByRole('button', { name: '필터 초기화' }).click();
@@ -65,6 +65,11 @@ test.describe('deployed prompt library', () => {
     await page.getByLabel('태그').selectOption('SEO');
     expect(await parseDisplayedCount(page)).toBe(40);
     await expect(page.locator('.tag', { hasText: 'SEO' }).first()).toBeVisible();
+
+    await page.getByRole('button', { name: '필터 초기화' }).click();
+    await page.getByLabel('태그').selectOption('트렌드');
+    expect(await parseDisplayedCount(page)).toBe(100);
+    await expect(page.locator('.tag', { hasText: '트렌드' }).first()).toBeVisible();
 
     await page.getByLabel('정렬').selectOption('function');
     await expect(page.getByLabel('정렬')).toHaveValue('function');
@@ -109,7 +114,7 @@ test.describe('deployed prompt library', () => {
     await page.reload();
     await expect(page.getByLabel('대상')).toBeVisible();
     await page.getByLabel('대상').selectOption('학생');
-    expect(await parseDisplayedCount(page)).toBe(175);
+    expect(await parseDisplayedCount(page)).toBe(191);
     await expect(page.locator('.result-card').first().getByRole('button', { name: '내용 채우기' })).toBeVisible();
   });
 });
