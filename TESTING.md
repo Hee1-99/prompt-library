@@ -18,7 +18,7 @@ env BASE_URL=http://127.0.0.1:4173/ npm run test:e2e
 The suite checks:
 
 - catalog statistics and rendered prompt cards
-- keyword search and filter reset
+- filter reset
 - audience, industry, workflow, tag, and sort controls
 - variable input generation
 - base and generated prompt copy buttons

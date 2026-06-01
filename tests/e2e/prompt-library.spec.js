@@ -36,15 +36,11 @@ test.describe('deployed prompt library', () => {
     await expect(page.locator('.result-card')).toHaveCount(1000);
   });
 
-  test('search filters the catalog and reset restores it', async ({ page }) => {
-    await page.getByLabel('검색').fill('논문');
-    await expect(page.locator('#resultSummary')).not.toHaveText('1,000개 중 1,000개 표시 중');
-    const searchedCount = await parseDisplayedCount(page);
-    expect(searchedCount).toBeGreaterThan(0);
-    expect(searchedCount).toBeLessThan(1000);
+  test('filter reset restores the full catalog', async ({ page }) => {
+    await page.getByLabel('업무 유형').selectOption({ label: '리뷰 답변' });
+    expect(await parseDisplayedCount(page)).toBe(40);
 
     await page.getByRole('button', { name: '필터 초기화' }).click();
-    await expect(page.getByLabel('검색')).toHaveValue('');
     await expect(page.locator('#resultSummary')).toHaveText('1,000개 중 1,000개 표시 중');
   });
 
@@ -109,9 +105,9 @@ test.describe('deployed prompt library', () => {
   test('mobile viewport keeps the main controls usable', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
-    await expect(page.getByLabel('검색')).toBeVisible();
-    await page.getByLabel('검색').fill('과제');
-    expect(await parseDisplayedCount(page)).toBeGreaterThan(0);
+    await expect(page.getByLabel('대상')).toBeVisible();
+    await page.getByLabel('대상').selectOption({ label: '학생' });
+    expect(await parseDisplayedCount(page)).toBe(175);
     await expect(page.locator('.result-card').first().getByRole('button', { name: '변수 입력' })).toBeVisible();
   });
 });

@@ -1,5 +1,4 @@
 const state = {
-  query: "",
   audience: "all",
   industry: "all",
   functionId: "all",
@@ -10,7 +9,6 @@ const state = {
 };
 
 const els = {
-  searchInput: document.querySelector("#searchInput"),
   audienceFilter: document.querySelector("#audienceFilter"),
   industryFilter: document.querySelector("#industryFilter"),
   functionFilter: document.querySelector("#functionFilter"),
@@ -58,24 +56,6 @@ const initFilters = () => {
   els.functionCount.textContent = WORKFLOWS.length.toLocaleString("ko-KR");
 };
 
-const matchesQuery = (prompt) => {
-  if (!state.query) return true;
-  const haystack = [
-    prompt.title,
-    prompt.industry,
-    prompt.audience,
-    prompt.function,
-    prompt.description,
-    prompt.outputFormat,
-    prompt.tags.join(" "),
-    prompt.prompt,
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(state.query.toLowerCase());
-};
-
 const getFilteredPrompts = () => {
   const filtered = PROMPTS.filter((prompt) => {
     const audienceMatch = state.audience === "all" || prompt.audience === state.audience;
@@ -84,7 +64,7 @@ const getFilteredPrompts = () => {
       state.functionId === "all" || prompt.functionId === state.functionId;
     const tagMatch = state.tag === "all" || prompt.tags.includes(state.tag);
 
-    return audienceMatch && industryMatch && functionMatch && tagMatch && matchesQuery(prompt);
+    return audienceMatch && industryMatch && functionMatch && tagMatch;
   });
 
   return filtered.sort((a, b) => {
@@ -201,11 +181,6 @@ const copyText = async (text) => {
 };
 
 const bindEvents = () => {
-  els.searchInput.addEventListener("input", (event) => {
-    state.query = event.target.value.trim();
-    renderPrompts();
-  });
-
   els.audienceFilter.addEventListener("change", (event) => {
     state.audience = event.target.value;
     renderPrompts();
@@ -232,13 +207,11 @@ const bindEvents = () => {
   });
 
   els.resetButton.addEventListener("click", () => {
-    state.query = "";
     state.audience = "all";
     state.industry = "all";
     state.functionId = "all";
     state.tag = "all";
     state.sort = "recommended";
-    els.searchInput.value = "";
     els.audienceFilter.value = "all";
     els.industryFilter.value = "all";
     els.functionFilter.value = "all";
