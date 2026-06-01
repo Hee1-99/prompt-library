@@ -33,23 +33,108 @@ const els = {
 
 const unique = (items) => [...new Set(items)].sort((a, b) => a.localeCompare(b, "ko"));
 
-const addOptions = (select, items) => {
-  items.forEach((item) => {
-    const option = document.createElement("option");
-    option.value = item.id ?? item;
-    option.textContent = item.name ?? item;
-    select.appendChild(option);
+const optionSets = {
+  audience: {
+    select: els.audienceFilter,
+    defaultLabel: "전체 대상",
+    items: () => unique(INDUSTRIES.map((industry) => industry.audience)).map((audience) => ({
+      value: audience,
+      label: audience,
+    })),
+  },
+  industry: {
+    select: els.industryFilter,
+    defaultLabel: "전체 산업군/분야",
+    items: () => INDUSTRIES.map((industry) => ({
+      value: industry.id,
+      label: industry.name,
+    })),
+  },
+  functionId: {
+    select: els.functionFilter,
+    defaultLabel: "전체 업무 유형",
+    items: () => WORKFLOWS.map((workflow) => ({
+      value: workflow.id,
+      label: workflow.name,
+    })),
+  },
+  tag: {
+    select: els.tagFilter,
+    defaultLabel: "전체 태그",
+    items: () => unique(PROMPTS.flatMap((prompt) => prompt.tags)).map((tag) => ({
+      value: tag,
+      label: tag,
+    })),
+  },
+};
+
+const matchesFilters = (prompt, filters = state) => {
+  const audienceMatch = filters.audience === "all" || prompt.audience === filters.audience;
+  const industryMatch = filters.industry === "all" || prompt.industryId === filters.industry;
+  const functionMatch = filters.functionId === "all" || prompt.functionId === filters.functionId;
+  const tagMatch = filters.tag === "all" || prompt.tags.includes(filters.tag);
+
+  return audienceMatch && industryMatch && functionMatch && tagMatch;
+};
+
+const getPromptCount = (filters = state) =>
+  PROMPTS.filter((prompt) => matchesFilters(prompt, filters)).length;
+
+const formatOptionLabel = (label, count) => `${label} (${count.toLocaleString("ko-KR")})`;
+
+const normalizeFilters = (lockedField) => {
+  const fields = Object.keys(optionSets);
+  let changed = true;
+
+  while (changed && getPromptCount() === 0) {
+    changed = false;
+    for (const field of fields) {
+      if (field === lockedField || state[field] === "all") continue;
+      state[field] = "all";
+      changed = true;
+      if (getPromptCount() > 0) break;
+    }
+  }
+};
+
+const renderFilterOptions = (lockedField) => {
+  normalizeFilters(lockedField);
+
+  Object.entries(optionSets).forEach(([field, config]) => {
+    const select = config.select;
+    const currentValue = state[field];
+    const fragment = document.createDocumentFragment();
+    const baseFilters = { ...state, [field]: "all" };
+    const allCount = getPromptCount(baseFilters);
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "all";
+    defaultOption.textContent = formatOptionLabel(config.defaultLabel, allCount);
+    fragment.appendChild(defaultOption);
+
+    const validValues = new Set(["all"]);
+    config.items().forEach((item) => {
+      const count = getPromptCount({ ...baseFilters, [field]: item.value });
+      if (count === 0) return;
+
+      validValues.add(item.value);
+      const option = document.createElement("option");
+      option.value = item.value;
+      option.textContent = formatOptionLabel(item.label, count);
+      fragment.appendChild(option);
+    });
+
+    if (!validValues.has(currentValue) && field !== lockedField) {
+      state[field] = "all";
+    }
+
+    select.replaceChildren(fragment);
+    select.value = state[field];
   });
 };
 
 const initFilters = () => {
-  addOptions(
-    els.audienceFilter,
-    unique(INDUSTRIES.map((industry) => industry.audience)),
-  );
-  addOptions(els.industryFilter, INDUSTRIES);
-  addOptions(els.functionFilter, WORKFLOWS);
-  addOptions(els.tagFilter, unique(PROMPTS.flatMap((prompt) => prompt.tags)));
+  renderFilterOptions();
 
   els.totalCount.textContent = PROMPTS.length.toLocaleString("ko-KR");
   els.industryCount.textContent = INDUSTRIES.length.toLocaleString("ko-KR");
@@ -57,15 +142,7 @@ const initFilters = () => {
 };
 
 const getFilteredPrompts = () => {
-  const filtered = PROMPTS.filter((prompt) => {
-    const audienceMatch = state.audience === "all" || prompt.audience === state.audience;
-    const industryMatch = state.industry === "all" || prompt.industryId === state.industry;
-    const functionMatch =
-      state.functionId === "all" || prompt.functionId === state.functionId;
-    const tagMatch = state.tag === "all" || prompt.tags.includes(state.tag);
-
-    return audienceMatch && industryMatch && functionMatch && tagMatch;
-  });
+  const filtered = PROMPTS.filter((prompt) => matchesFilters(prompt));
 
   return filtered.sort((a, b) => {
     if (state.sort === "industry") {
@@ -184,21 +261,25 @@ const copyText = async (text) => {
 const bindEvents = () => {
   els.audienceFilter.addEventListener("change", (event) => {
     state.audience = event.target.value;
+    renderFilterOptions("audience");
     renderPrompts();
   });
 
   els.industryFilter.addEventListener("change", (event) => {
     state.industry = event.target.value;
+    renderFilterOptions("industry");
     renderPrompts();
   });
 
   els.functionFilter.addEventListener("change", (event) => {
     state.functionId = event.target.value;
+    renderFilterOptions("functionId");
     renderPrompts();
   });
 
   els.tagFilter.addEventListener("change", (event) => {
     state.tag = event.target.value;
+    renderFilterOptions("tag");
     renderPrompts();
   });
 
@@ -213,11 +294,8 @@ const bindEvents = () => {
     state.functionId = "all";
     state.tag = "all";
     state.sort = "recommended";
-    els.audienceFilter.value = "all";
-    els.industryFilter.value = "all";
-    els.functionFilter.value = "all";
-    els.tagFilter.value = "all";
     els.sortSelect.value = "recommended";
+    renderFilterOptions();
     renderPrompts();
   });
 

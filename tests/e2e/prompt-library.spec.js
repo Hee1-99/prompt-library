@@ -37,7 +37,7 @@ test.describe('deployed prompt library', () => {
   });
 
   test('filter reset restores the full catalog', async ({ page }) => {
-    await page.getByLabel('업무 유형').selectOption({ label: '리뷰 답변' });
+    await page.getByLabel('업무 유형').selectOption('review-response');
     expect(await parseDisplayedCount(page)).toBe(40);
 
     await page.getByRole('button', { name: '필터 초기화' }).click();
@@ -45,22 +45,24 @@ test.describe('deployed prompt library', () => {
   });
 
   test('audience, industry, workflow, tag, and sort controls work', async ({ page }) => {
-    await page.getByLabel('대상').selectOption({ label: '학생' });
+    await page.getByLabel('대상').selectOption('학생');
     expect(await parseDisplayedCount(page)).toBe(175);
     await expectVisibleCardsToInclude(page, '학생');
 
+    await expect(page.getByLabel('산업군/분야').locator('option[value="saas-startup"]')).toHaveCount(0);
+
     await page.getByRole('button', { name: '필터 초기화' }).click();
-    await page.getByLabel('산업군/분야').selectOption({ label: 'SaaS/IT 스타트업' });
+    await page.getByLabel('산업군/분야').selectOption('saas-startup');
     expect(await parseDisplayedCount(page)).toBe(25);
     await expectVisibleCardsToInclude(page, 'SaaS/IT 스타트업');
 
     await page.getByRole('button', { name: '필터 초기화' }).click();
-    await page.getByLabel('업무 유형').selectOption({ label: '리뷰 답변' });
+    await page.getByLabel('업무 유형').selectOption('review-response');
     expect(await parseDisplayedCount(page)).toBe(40);
     await expectVisibleCardsToInclude(page, '리뷰 답변');
 
     await page.getByRole('button', { name: '필터 초기화' }).click();
-    await page.getByLabel('태그').selectOption({ label: 'SEO' });
+    await page.getByLabel('태그').selectOption('SEO');
     expect(await parseDisplayedCount(page)).toBe(40);
     await expect(page.locator('.tag', { hasText: 'SEO' }).first()).toBeVisible();
 
@@ -106,7 +108,7 @@ test.describe('deployed prompt library', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
     await expect(page.getByLabel('대상')).toBeVisible();
-    await page.getByLabel('대상').selectOption({ label: '학생' });
+    await page.getByLabel('대상').selectOption('학생');
     expect(await parseDisplayedCount(page)).toBe(175);
     await expect(page.locator('.result-card').first().getByRole('button', { name: '내용 채우기' })).toBeVisible();
   });
