@@ -3,6 +3,9 @@
 사업, 업무, 학습에 바로 복사해서 쓸 수 있는 한국어 AI 프롬프트 1000개 라이브러리입니다.  
 GitHub Pages에 그대로 올릴 수 있는 정적 웹앱이며, 별도 빌드나 서버가 필요 없습니다.
 
+- Live Demo: https://hee1-99.github.io/prompt-library/
+- Repository: https://github.com/Hee1-99/prompt-library
+
 ## 구성
 
 - `index.html`: 웹앱 진입점
