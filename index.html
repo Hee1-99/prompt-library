@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>복붙 AI 업무 라이브러리</title>
+    <meta
+      name="description"
+      content="한국어 실무, 사업, 학생 생활을 위한 무료 AI 프롬프트 1000개 라이브러리"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="라이브러리 필터">
+        <div class="brand">
+          <div class="brand-mark">AI</div>
+          <div>
+            <h1>복붙 AI 업무 라이브러리</h1>
+            <p>사업, 업무, 학습을 위한 한국어 프롬프트 1000개</p>
+          </div>
+        </div>
+
+        <section class="control-group">
+          <label for="searchInput">검색</label>
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="예: 리뷰, 논문, 세일즈, 과제"
+            autocomplete="off"
+          />
+        </section>
+
+        <section class="control-group">
+          <label for="audienceFilter">대상</label>
+          <select id="audienceFilter">
+            <option value="all">전체 대상</option>
+          </select>
+        </section>
+
+        <section class="control-group">
+          <label for="industryFilter">산업군/분야</label>
+          <select id="industryFilter">
+            <option value="all">전체 산업군/분야</option>
+          </select>
+        </section>
+
+        <section class="control-group">
+          <label for="functionFilter">업무 유형</label>
+          <select id="functionFilter">
+            <option value="all">전체 업무 유형</option>
+          </select>
+        </section>
+
+        <section class="control-group">
+          <label for="tagFilter">태그</label>
+          <select id="tagFilter">
+            <option value="all">전체 태그</option>
+          </select>
+        </section>
+
+        <button id="resetButton" class="secondary-button" type="button">
+          필터 초기화
+        </button>
+
+        <div class="profile-box">
+          <span>제작자 포트폴리오용 오픈소스 자산</span>
+          <a href="https://github.com/Hee1-99/prompt-library" target="_blank" rel="noreferrer">
+            GitHub에서 보기
+          </a>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <section class="top-bar" aria-label="라이브러리 요약">
+          <div>
+            <p class="eyebrow">Korean AI Prompt Library</p>
+            <h2>검색하고, 변수만 바꾸고, 바로 복사하세요.</h2>
+          </div>
+          <div class="stats-grid" aria-label="커버리지 통계">
+            <div>
+              <strong id="totalCount">1000</strong>
+              <span>프롬프트</span>
+            </div>
+            <div>
+              <strong id="industryCount">40</strong>
+              <span>분야</span>
+            </div>
+            <div>
+              <strong id="functionCount">25</strong>
+              <span>업무 유형</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="coverage-strip" aria-label="대표 커버리지">
+          <div class="coverage-item business">
+            <span>사업</span>
+            <strong>자영업, SaaS, 영업, 마케팅, 운영</strong>
+          </div>
+          <div class="coverage-item work">
+            <span>업무</span>
+            <strong>기획, CS, 채용, 문서화, 데이터 분석</strong>
+          </div>
+          <div class="coverage-item student">
+            <span>학생</span>
+            <strong>과제, 논문, 시험, 유학, 포트폴리오</strong>
+          </div>
+        </section>
+
+        <section class="workspace">
+          <div class="result-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>프롬프트 목록</h3>
+                <p id="resultSummary">1000개 중 1000개 표시 중</p>
+              </div>
+              <select id="sortSelect" aria-label="정렬">
+                <option value="recommended">추천순</option>
+                <option value="industry">산업군순</option>
+                <option value="function">업무순</option>
+              </select>
+            </div>
+            <div id="promptGrid" class="prompt-grid" aria-live="polite"></div>
+          </div>
+
+          <aside class="builder-panel" aria-label="프롬프트 빌더">
+            <div class="panel-heading">
+              <div>
+                <h3>변수 입력</h3>
+                <p>선택한 프롬프트를 내 상황에 맞게 완성합니다.</p>
+              </div>
+            </div>
+            <div id="builderEmpty" class="empty-state">
+              목록에서 프롬프트를 선택하면 변수 입력창이 열립니다.
+            </div>
+            <div id="builderContent" class="builder-content hidden">
+              <div class="selected-meta">
+                <span id="selectedIndustry"></span>
+                <strong id="selectedTitle"></strong>
+              </div>
+              <div id="variableFields" class="variable-fields"></div>
+              <label for="generatedPrompt">완성 프롬프트</label>
+              <textarea id="generatedPrompt" rows="12" readonly></textarea>
+              <div class="button-row">
+                <button id="copyGenerated" class="primary-button" type="button">
+                  완성본 복사
+                </button>
+                <button id="copyBase" class="secondary-button" type="button">
+                  원본 복사
+                </button>
+              </div>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./src/catalog.js"></script>
+    <script src="./src/app.js"></script>
+  </body>
+</html>
