@@ -235,13 +235,13 @@ textarea {
 
 .top-bar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 28px;
   align-items: end;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   animation: slide-up 560ms 80ms ease both;
   border-bottom: 1px solid var(--ink);
-  padding: 18px 0 38px;
+  padding: 14px 0 28px;
 }
 
 .eyebrow {
@@ -261,18 +261,27 @@ textarea {
 }
 
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 112px);
-  gap: 10px;
+  display: flex;
+  gap: 0;
+  align-items: center;
+  justify-content: flex-end;
+  border: 1px solid var(--ink);
+  border-radius: var(--pill);
+  background: var(--paper);
+  overflow: hidden;
 }
 
 .stats-grid div {
-  min-height: 92px;
-  border: 1px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--mist);
-  padding: 12px;
+  display: flex;
+  min-height: 38px;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 13px;
   animation: stat-rise 520ms ease both;
+}
+
+.stats-grid div + div {
+  border-left: 1px solid var(--ink);
 }
 
 .stats-grid div:nth-child(2) {
@@ -290,18 +299,18 @@ textarea {
 .stats-grid strong {
   display: block;
   font-family: var(--al-display-family);
-  font-size: 28px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1;
 }
 
 .stats-grid span {
   display: block;
-  margin-top: 10px;
   color: var(--ink);
   font-family: var(--al-mono-family);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .coverage-strip {
@@ -606,15 +615,27 @@ textarea {
   }
 
   .top-bar {
-    gap: 22px;
-    padding: 10px 0 26px;
+    gap: 18px;
+    padding: 10px 0 24px;
   }
 
   .top-bar h2 {
     font-size: 38px;
   }
 
-  .stats-grid,
+  .stats-grid {
+    justify-content: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    flex-wrap: wrap;
+    border-radius: var(--radius);
+  }
+
+  .stats-grid div {
+    min-height: 34px;
+    padding: 7px 10px;
+  }
+
   .coverage-strip {
     grid-template-columns: 1fr;
   }
