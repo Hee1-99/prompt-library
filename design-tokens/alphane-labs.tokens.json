@@ -3,7 +3,7 @@
     "name": "Alphane Labs Solutions",
     "url": "https://solutions.alphanelabs.com/",
     "method": "Playwright computed-style extraction, translated into original prompt-library design tokens",
-    "notes": "Derived visual system only. No assets or source CSS copied."
+    "notes": "Derived visual system only. No assets or source CSS copied. Web font implementation uses free Google Fonts: IBM Plex Sans KR, Archivo, and IBM Plex Mono."
   },
   "colors": {
     "ink": "#050505",
@@ -15,8 +15,9 @@
     "dim": "#5f676d"
   },
   "typography": {
-    "bodyFamily": "Aeonik, Satoshi, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
-    "monoFamily": "Aeonik Mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    "bodyFamily": "IBM Plex Sans KR, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+    "displayFamily": "Archivo, IBM Plex Sans KR, ui-sans-serif, system-ui, sans-serif",
+    "monoFamily": "IBM Plex Mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
     "bodySize": "16px",
     "bodyWeight": "500",
     "bodyLineHeight": "1.25",

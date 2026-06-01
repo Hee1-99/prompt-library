@@ -7,8 +7,9 @@
   --al-green: #8fd356;
   --al-line: #d9e5ed;
   --al-dim: #5f676d;
-  --al-body-family: Aeonik, Satoshi, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --al-mono-family: "Aeonik Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --al-body-family: "IBM Plex Sans KR", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --al-display-family: "Archivo", "IBM Plex Sans KR", ui-sans-serif, system-ui, sans-serif;
+  --al-mono-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --al-radius: 8px;
   --al-pill: 999px;
 }

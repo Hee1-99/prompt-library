@@ -84,9 +84,10 @@ const renderPrompts = () => {
 
   const fragment = document.createDocumentFragment();
 
-  prompts.forEach((prompt) => {
+  prompts.forEach((prompt, index) => {
     const card = document.createElement("article");
-    card.className = "result-card";
+    card.className = state.selected?.id === prompt.id ? "result-card is-selected" : "result-card";
+    card.style.setProperty("--card-index", String(index % 24));
     card.innerHTML = `
       <div class="card-kicker">
         <span class="audience-pill">${prompt.audience}</span>
@@ -234,6 +235,10 @@ const bindEvents = () => {
 
     state.selected = prompt;
     state.variableValues = {};
+    els.promptGrid.querySelectorAll(".result-card.is-selected").forEach((card) => {
+      card.classList.remove("is-selected");
+    });
+    button.closest(".result-card")?.classList.add("is-selected");
     renderBuilder();
 
     if (window.matchMedia("(max-width: 1120px)").matches) {
